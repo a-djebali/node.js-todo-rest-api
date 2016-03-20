@@ -65,14 +65,23 @@ function getAccount (username) {
   return matchedaccount;
 }
 if(command === 'create' && argv.name !== 'undefined' && argv.username !== 'undefined' && argv.password !== 'undefined'){
-  createAccount({
+  var createAccount = createAccount({
     name: argv.name,
     username:argv.username,
     password:argv.password
   });
   console.log('Account created');
+  console.log(createAccount);
 }
 else if(command === 'get' && argv.username !== 'undefined')
-  console.log(getAccount(argv.username));
+  var fetchedAccount = getAccount(argv.username)
+  if(typeof fetchedAccount === 'undefined'){
+    console.log('Account not found')
+  }
+  else{
+    console.log('Account found!');
+    console.log(fetchedAccount);
+  }
+
 
 
