@@ -5,4 +5,3 @@
 - BootStrap
 - HTML5/CSS3
 - JavaScript 
-<h3>Tests<h3>
