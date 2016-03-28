@@ -10,10 +10,29 @@ var todoNextId = 1;
 //Anytime a json request comes in express will parse it, so we can access it 
 app.use(bodyParser.json());
 
-// Get all todos : // GET /todos
+// Get all todos : // GET /todos?completed=true
 app.get('/todos', function (req, res) {
-  //Convert todos list to json format, then send it back to the caller 
-  res.json(todos);
+  var queryParams = req.query;
+  var filteredTodos = [];
+
+  if (!queryParams.hasOwnProperty('completed')) {
+    res.json(todos);
+  }else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
+    todos.forEach( function(todo) {
+      if(todo.completed === true){
+        filteredTodos.push(todo);
+      }
+    });
+    res.json(filteredTodos); 
+  }else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+    todos.forEach( function(todo) {
+      if(todo.completed === false){
+        filteredTodos.push(todo);
+      }
+    });
+    res.json(filteredTodos); 
+  } 
+  
 });
 
 // Get a todo by id : // GET /todos/:id
