@@ -27,7 +27,7 @@ app.get('/todos/:id', function (req, res) {
 app.post('/todos', function (req, res) {
   var body = _.pick(req.body, 'description', 'completed'); 
 
-  //In case of bad request
+  //Handle bad requests
   if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
     res.status(400).send();
   }else{
@@ -39,7 +39,47 @@ app.post('/todos', function (req, res) {
 });
 
 
+// DELETE /todos/:id
+app.delete('/todos/:id', function (req, res) {
+  var todoId = parseInt(req.params.id, 10);
+  var matchedtodo = _.findWhere(todos, {id: todoId});
+  if(!matchedtodo){
+    res.status(404).json({"error":"no todo found with that id"}) ;
+  }else{
+    todos = _.without(todos, matchedtodo); 
+    res.json(matchedtodo); 
+  }
+});
 
+// PUT /todos/:id 
+app.put('/todos/:id', function (req, res) {
+  var todoId = parseInt(req.params.id, 10);
+  var matchedtodo = _.findWhere(todos, {id: todoId});
+  var body = _.pick(req.body, 'description', 'completed'); 
+
+  //Store values that will be updated on the item
+  var validAttributes = {};
+
+  if(!matchedtodo){
+    return res.status(404).send();
+  }
+
+  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+    validAttributes.completed = body.completed; 
+  }else if (body.hasOwnProperty('completed')) {
+    return res.status(400).send();
+  }
+
+  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+    validAttributes.description = body.description.trim(); 
+  }else if (body.hasOwnProperty('description')) {
+    return res.status(400).send();
+  }
+
+  _.extend(matchedtodo, validAttributes);
+  res.json(matchedtodo);
+
+});
 
 app.use(express.static(__dirname+'/public'));
 
