@@ -1,32 +1,21 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+
 var app = express();
 var PORT = process.env.PORT || 3000;
+var todos = [];
+var todoNextId = 1;
 
-var todos =[{
-  id: 1,
-  description: 'Meet father for lunch',
-  completed: false
-}, {
-  id: 2,
-  description: 'Go to market',
-  completed: false
-},{
-  id: 3,
-  description: 'Finish your last project',
-  completed: false
-},];
+//Anytime a json request comes in express will parse it, so we can access it 
+app.use(bodyParser.json());
 
-app.get('/about', function (req, res) {
-  res.send('Hello Ahmed in about page');
-});
-
-// Get all todos
+// Get all todos : // GET /todos
 app.get('/todos', function (req, res) {
   //Convert todos list to json format, then send it back to the caller 
   res.json(todos);
 });
 
-// Get todo by id 
+// Get a todo by id : // GET /todos/:id
 app.get('/todos/:id', function (req, res) { 
   var todoId = parseInt(req.params.id, 10);
   var matchedtodo;
@@ -43,6 +32,14 @@ app.get('/todos/:id', function (req, res) {
     res.status(404).send();
   } 
 }); 
+
+// POST /todos
+app.post('/todos', function (req, res) {
+  var body = req.body;
+  body.id = todoNextId++;
+  todos.push(body); 
+  res.json(body);
+});
 
 
 
