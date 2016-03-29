@@ -41,10 +41,22 @@ app.get('/todos', function(req, res) {
 // Get a todo by id : // GET /todos/:id
 app.get('/todos/:id', function(req, res) {
   var todoId = parseInt(req.params.id, 10);
+
+  db.todo.findById(todoId).then(function(todo) {
+    if(!!todo){
+      res.json(todo.toJSON());
+    }else{
+      res.status(404).send(); //Not found  
+    }
+  }, function(error) {
+    res.status(500).send(); //Something went wrong in the server  
+  });
+
+  /*Use todos array in case you don't use database
   var matchedtodo = _.findWhere(todos, {
     id: todoId
   });
-  (matchedtodo) ? res.send(matchedtodo.description): res.status(404).send();
+  (matchedtodo) ? res.send(matchedtodo.description): res.status(404).send();*/
 });
 
 // POST /todos
@@ -53,12 +65,12 @@ app.post('/todos', function(req, res) {
 
   db.todo.create(body).then(function(todo) {
     res.json(todo.toJSON());
-  }, function (error) {
+  }, function(error) {
     res.status(404).json(error);
   });
 
-  
-  /*In case you don't use database 
+
+  /*Use todos array in case you don't use database
   //Handle bad requests
   if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
     res.status(400).send();
@@ -74,6 +86,8 @@ app.post('/todos', function(req, res) {
 // DELETE /todos/:id
 app.delete('/todos/:id', function(req, res) {
   var todoId = parseInt(req.params.id, 10);
+
+  /*Use todos array in case you don't use database
   var matchedtodo = _.findWhere(todos, {
     id: todoId
   });
@@ -84,7 +98,7 @@ app.delete('/todos/:id', function(req, res) {
   } else {
     todos = _.without(todos, matchedtodo);
     res.json(matchedtodo);
-  }
+  }*/
 });
 
 // PUT /todos/:id 
