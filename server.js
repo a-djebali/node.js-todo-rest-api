@@ -28,7 +28,9 @@ app.get('/todos', function(req, res) {
     };
   }
 
-  db.todo.findAll({where: where}).then(function(todos) {
+  db.todo.findAll({
+    where: where
+  }).then(function(todos) {
     if (!!todos) {
       res.json(todos);
     } else {
@@ -69,16 +71,20 @@ app.post('/todos', function(req, res) {
 // DELETE /todos/:id
 app.delete('/todos/:id', function(req, res) {
   var todoId = parseInt(req.params.id, 10);
-  var where = {id: todoId};  
-  db.todo.destroy({where: where}).then(function (rowsDeleted) {
-    if(rowsDeleted === 0) {
+  var where = {
+    id: todoId
+  };
+  db.todo.destroy({
+    where: where
+  }).then(function(rowsDeleted) {
+    if (rowsDeleted === 0) {
       res.status(404).json({
         error: "No todo with " + todoId + ""
       });
-    }else{
+    } else {
       res.status(204).send(); //Everything went well, but nothing to send back :) 
     }
-  }).catch(function (error) {
+  }).catch(function(error) {
     res.status(500).send();
   });
 });
@@ -86,35 +92,35 @@ app.delete('/todos/:id', function(req, res) {
 // PUT /todos/:id 
 app.put('/todos/:id', function(req, res) {
   var todoId = parseInt(req.params.id, 10);
-  var matchedtodo = _.findWhere(todos, {
-    id: todoId
-  });
   var body = _.pick(req.body, 'description', 'completed');
+  var attributes = {};
 
-  //Store values that will be updated on the item
-  var validAttributes = {};
-
-  if (!matchedtodo) {
-    return res.status(404).send();
+  if (body.hasOwnProperty('completed')) {
+    attributes.completed = body.completed;
   }
 
-  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-    validAttributes.completed = body.completed;
-  } else if (body.hasOwnProperty('completed')) {
-    return res.status(400).send();
+  if (body.hasOwnProperty('description')) {
+    attributes.description = body.description.trim();
   }
 
-  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-    validAttributes.description = body.description.trim();
-  } else if (body.hasOwnProperty('description')) {
-    return res.status(400).send();
-  }
+  db.todo.findById(todoId).then(function(todo) {
 
-  _.extend(matchedtodo, validAttributes);
-  res.json(matchedtodo);
-
+    if (todo) {
+      todo.update(attributes).then(function(todo) {
+        /* Success update... */
+        res.json(todo.toJSON());
+      }, function(error) {
+        /* Update failed... */
+        res.status(400).json(error);
+      });
+    } else {
+      res.status(404).send();
+    }
+  }, function() {
+    /* if find by id failed... */
+    res.satatus(500).send();
+  });
 });
-
 
 db.sequelize.sync().then(function() {
   app.listen(PORT, function() {
