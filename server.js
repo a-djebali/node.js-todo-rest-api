@@ -63,7 +63,7 @@ app.post('/todos', function(req, res) {
   db.todo.create(body).then(function(todo) {
     res.json(todo.toJSON());
   }, function(error) {
-    res.status(404).json(error);
+    res.status(400).json(error);
   });
 });
 
@@ -121,6 +121,38 @@ app.put('/todos/:id', function(req, res) {
     res.satatus(500).send();
   });
 });
+
+//POST /users 
+app.post('/users', function (req, res) {
+  var body = _.pick(req.body, 'email', 'password');
+
+  db.user.create(body).then(function (user) {
+    res.json(user.toJSON());
+  }, function (error) {
+     res.status(400).json(error); //bad request
+  });
+});
+
+//GET /users/:id
+app.get('/users/:id', function (req, res) {
+  var userId = parseInt(req.params.id, 10);
+  db.user.findById(userId).then(function (user) {
+    if(!!user){
+      res.json(user.toJSON());
+    }else{
+      res.status(404).send();
+    }
+  }, function (error) {
+     res.status(500).json(error); //error in the server side 
+  });
+});
+//GET /users
+/*app.get('/users', function () {
+  var userId = parseInt(req.params.id, 10);
+});*/
+//DELETE /users/:id
+//PUT /users/:id
+
 
 db.sequelize.sync().then(function() {
   app.listen(PORT, function() {
