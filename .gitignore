@@ -1,1 +1,4 @@
 node_modules/
+data/*.sqlite
+basic-sqlite-db.js
+*.sqlite
